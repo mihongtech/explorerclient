@@ -8,7 +8,7 @@
         <router-view/>
       </el-main>
       <el-footer>
-        <p>© mihongtech.com | <a href="http://github.com/etherparty/explorer">Fork me on GitHub</a></p>
+        <p>© mihongtech.com | <a href="https://github.com/xixisese/linkchain" target="_blank">Fork me on GitHub</a></p>
       </el-footer>
     </el-container>
   </div>
