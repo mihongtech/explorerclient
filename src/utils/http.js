@@ -2,6 +2,7 @@ import axios from 'axios';
 import {Message} from 'element-ui';
 
 const http = axios.create({
+  // baseURL: 'http://114.116.18.94',
   headers: {
     'Content-Type': 'application/json',
   },

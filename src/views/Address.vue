@@ -32,7 +32,7 @@
           </tr>
           <tr>
             <td>Final Balance</td>
-            <td>{{total}}</td>
+            <td>{{remain}}</td>
           </tr>
         </table>
       </div>
@@ -76,7 +76,7 @@
           <tr>
             <td colspan="3"></td>
             <td>
-              <el-button type="success">{{transaction.toTotal}}</el-button>
+              <el-button type="success">{{transaction.totalTo}}</el-button>
             </td>
           </tr>
           </tbody>
@@ -96,7 +96,7 @@
         transactions: [],
         totalSpend: 0,
         totalReceive: 0,
-        total: 0,
+        remain: 0,
         address: '',
       }
     },
@@ -105,17 +105,25 @@
         getAddressInfo({hash})
           .then((transactions) => {
             transactions.forEach((transaction) => {
-              transaction.toTotal = 0;
-              (transaction.to || []).forEach((t) => {
-                transaction.toTotal += t.amount;
-                if(t.account_id === this.$route.params.hash) {
-                  this.totalReceive += t.amount;
-                } else {
-                  this.totalSpend += t.amount;
+              transaction.totalFrom = 0; // 当前账户交易总花费
+              transaction.totalReceive = 0; // 当前账户交易总收入
+              transaction.totalTo = 0; // 交易总账
+              (transaction.from || []).forEach((f) => {
+                if(f.account_id === this.$route.params.hash) {
+                  transaction.totalFrom += f.amount;
                 }
               });
+              (transaction.to || []).forEach((t) => {
+                transaction.totalTo += t.amount;
+                if(t.account_id === this.$route.params.hash) {
+                  transaction.totalReceive += t.amount;
+                }
+              });
+              if (transaction.totalReceive - transaction.totalFrom > 0) {
+                this.totalReceive += transaction.totalReceive - transaction.totalFrom;
+              }
+              this.remain += transaction.totalReceive - transaction.totalFrom;
             });
-            this.total = this.totalReceive - this.totalSpend;
             this.transactions = transactions
           })
       }
