@@ -1,0 +1,46 @@
+.transaction {
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  tr {
+    border-top: 1px solid #ddd;
+  }
+
+  th {
+    font-size: 12px;
+    text-align: left;
+    padding: 8px;
+    background: #f9f9f9;
+  }
+
+  td {
+    vertical-align: top;
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  td:last-child {
+    text-align: right;
+  }
+
+  tr:last-child {
+    border-bottom: 1px solid #ddd;
+  }
+
+  img {
+    height: 20px;
+    vertical-align: middle;
+  }
+
+  p {
+    margin: 0;
+    line-height: 30px;
+  }
+
+  .coinbase {
+    font-weight: bold;
+    color: gray;
+  }
+}

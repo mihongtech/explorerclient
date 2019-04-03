@@ -2,7 +2,7 @@
   <div class="block">
     <h1>Block #{{block.height}}</h1>
     <div class="info">
-      <div class="info-summary">
+      <div class="info-cell info-summary">
         <table>
           <tr>
             <th colspan="2">Summary</th>
@@ -63,7 +63,7 @@
           </tr>
         </table>
       </div>
-      <div class="info-hashes">
+      <div class="info-cell info-hashes">
         <table>
           <tr>
             <th colspan="2">Hashes</th>
@@ -107,13 +107,17 @@
           <tbody v-for="(transaction) in block.transactions" :key="transaction.tx_id">
           <tr>
             <th colspan="4">
-              <router-link to="a">{{transaction.tx_id}}</router-link>
+              <router-link :to="`/transaction/${transaction.tx_id}`">{{transaction.tx_id}}</router-link>
             </th>
           </tr>
           <tr>
             <td>
               <div v-if="transaction.from">
-                <p v-for="from in transaction.from">{{from.accountId}}</p>
+                <p v-for="from in transaction.from">
+                  <router-link :to="`/address/${from.account_id}`">
+                    {{from.account_id}}
+                  </router-link>
+                </p>
               </div>
               <div v-else class="coinbase">No Inputs (Newly Generated Coins)</div>
             </td>
@@ -121,7 +125,11 @@
               <img src="@/assets/arrow_right_green.png"/>
             </td>
             <td>
-              <p v-for="to in transaction.to">{{to.accountId}}</p>
+              <p v-for="to in transaction.to">
+                <router-link :to="`/address/${to.account_id}`">
+                  {{to.account_id}}
+                </router-link>
+              </p>
             </td>
             <td>
               <p v-for="to in transaction.to">{{to.amount}}</p>
@@ -152,8 +160,7 @@
     methods: {
       loadBlock(hash) {
         getBlockByHash({hash})
-          .then((block) => {
-            block = block || {};
+          .then((block = {}) => {
             let fromTotal = 0;
             let toTotal = 0;
             (block.transactions || []).forEach((transaction) => {
@@ -210,68 +217,5 @@
 
   .info-hashes {
     margin-left: 10px;
-  }
-
-  .info-summary,
-  .info-hashes {
-    flex: 1;
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-
-    tr:nth-child(odd) {
-      background: #f9f9f9;
-    }
-
-    td, th {
-      border-bottom: 1px solid #ddd;
-      padding: 8px;
-      font-size: 12px;
-    }
-
-    th {
-      text-align: left;
-      border-top: 1px solid #ddd;
-    }
-  }
-  .transaction {
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-    tr {
-      border-top: 1px solid #ddd;
-    }
-    th {
-      font-size: 12px;
-      text-align: left;
-      padding: 8px;
-      background: #f9f9f9;
-    }
-    td {
-      vertical-align: top;
-      font-size: 14px;
-      padding: 8px;
-    }
-    td:last-child {
-      text-align: right;
-    }
-    tr:last-child {
-      border-bottom: 1px solid #ddd;
-    }
-    img {
-      height: 20px;
-      vertical-align: middle;
-    }
-    p {
-      margin: 0;
-      line-height: 30px;
-    }
-    .coinbase {
-      font-weight: bold;
-      color: gray;
-    }
   }
 </style>

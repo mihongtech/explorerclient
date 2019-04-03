@@ -1,0 +1,23 @@
+.info-cell {
+  flex: 1;
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  tr:nth-child(odd) {
+    background: #f9f9f9;
+  }
+
+  td, th {
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  th {
+    text-align: left;
+    border-top: 1px solid #ddd;
+  }
+}
