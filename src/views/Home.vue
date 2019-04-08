@@ -4,7 +4,7 @@
       <div class="block-head">
         <a href="javascript:;">BLOCKS</a>
       </div>
-      <div class="block-body">
+      <div class="block-body" v-loading="loading">
         <el-table :data="data" stripe style="width: 100%">
           <el-table-column align="center" prop="height" label="Height">
             <template slot-scope="scope">
@@ -19,6 +19,13 @@
           <el-table-column align="center" prop="txs" label="Transactions"/>
           <el-table-column align="center" prop="hex" label="Size (bytes)"/>
         </el-table>
+        <el-pagination
+          background
+          :page-size="10"
+          :total="total"
+          :current-page="page"
+          @current-change="loadBlockList"
+          layout="prev, pager, next, total"/>
       </div>
     </div>
   </div>
@@ -33,14 +40,22 @@
       return {
         page: 1,
         size: 10,
-        data: []
+        data: [],
+        total: 0,
+        loading: true
       }
     },
     methods: {
       loadBlockList(page) {
+        this.loading = true;
         getBlockList({page, size: this.size})
           .then(res => {
             this.data = res.list || [];
+            this.total = res.total;
+            this.loading = false;
+          })
+          .catch(() => {
+            this.loading = false;
           })
       }
     },
@@ -54,6 +69,7 @@
   .home {
     padding: 100px 20px 20px;
   }
+
   .block {
     background: #fff;
     padding: 20px;
@@ -97,5 +113,9 @@
   /deep/ .cell a {
     color: rgb(61, 137, 245);
     text-decoration: none;
+  }
+
+  /deep/ .el-pagination {
+    text-align: right;
   }
 </style>
