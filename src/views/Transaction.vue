@@ -4,42 +4,7 @@
       <small>information about a linkchain transaction</small>
     </h1>
     <table>
-      <tr>
-        <th colspan="4">
-          <router-link :to="`/transaction/${transaction.tx_id}`">{{transaction.tx_id}}</router-link>
-        </th>
-      </tr>
-      <tr>
-        <td>
-          <div v-if="transaction.from">
-            <p v-for="from in transaction.fromAccount">
-              <router-link :to="`/address/${from.account_id}`">
-                {{from.account_id}}
-              </router-link>
-            </p>
-          </div>
-          <div v-else class="coinbase">No Inputs (Newly Generated Coins)</div>
-        </td>
-        <td>
-          <img src="@/assets/arrow_right_green.png"/>
-        </td>
-        <td>
-          <p v-for="to in transaction.toAccount">
-            <router-link :to="`/address/${to.account_id}`">
-              {{to.account_id}}
-            </router-link>
-          </p>
-        </td>
-        <td>
-          <p v-for="to in transaction.to">{{to.amount}}</p>
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3"></td>
-        <td>
-          <el-button type="success">{{transaction.totalTo}}</el-button>
-        </td>
-      </tr>
+      <Transaction :transaction="transaction"/>
     </table>
 
     <div class="info">
@@ -67,7 +32,7 @@
           </tr>
         </table>
       </div>
-      <div class="info-cell info-money" v-if="transaction.fromAccount.length">
+      <div class="info-cell info-money" v-if="transaction.from && transaction.from.length">
         <table>
           <tr>
             <th colspan="2">Inputs and Outputs</th>
@@ -91,10 +56,13 @@
 </template>
 
 <script>
-  import {getTransactionByHash, getBestBlock} from '@/api'
+  import {getTransactionByHash, getBestBlock} from '@/api';
+  import Transaction from '@/components/Transaction';
 
   export default {
-    name: "Transaction",
+    components: {
+      Transaction,
+    },
     data() {
       return {
         transaction: {},
@@ -108,33 +76,6 @@
           .then((transaction = {}) => {
             transaction.totalFrom = (transaction.from || []).reduce((prev, cur) => prev + cur.amount, 0);
             transaction.totalTo = (transaction.to || []).reduce((prev, cur) => prev + cur.amount, 0);
-            transaction.fromAccount = [];
-            transaction.toAccount = [];
-
-            (transaction.from || []).forEach((f) => {
-              const fromAccount = transaction.fromAccount.find(fa => fa.account_id === f.account_id);
-              if (typeof fromAccount === 'undefined') {
-                transaction.fromAccount.push({
-                  account_id: f.account_id,
-                  tickets: [f]
-                });
-              } else {
-                fromAccount.tickets.push(f);
-              }
-            });
-
-            (transaction.to || []).forEach((t) => {
-              const toAccount = transaction.toAccount.find(ta => ta.account_id === t.account_id);
-              if (typeof toAccount === 'undefined') {
-                transaction.toAccount.push({
-                  account_id: t.account_id,
-                  tickets: [t]
-                });
-              } else {
-                toAccount.tickets.push(t);
-              }
-            });
-
             this.transaction = transaction;
             this.block = transaction.block;
             this.block.time = this.block.time.replace('T', ' ').replace('Z', '');

@@ -35,7 +35,6 @@
   import {getBlockList} from '@/api'
 
   export default {
-    name: 'home',
     data() {
       return {
         page: 1,

@@ -104,44 +104,7 @@
       <h1>Transactions</h1>
       <div class="transaction-item">
         <table>
-          <tbody v-for="(transaction) in block.transactions" :key="transaction.tx_id">
-          <tr>
-            <th colspan="4">
-              <router-link :to="`/transaction/${transaction.tx_id}`">{{transaction.tx_id}}</router-link>
-            </th>
-          </tr>
-          <tr>
-            <td>
-              <div v-if="transaction.from">
-                <p v-for="from in transaction.fromAccount">
-                  <router-link :to="`/address/${from.account_id}`">
-                    {{from.account_id}}
-                  </router-link>
-                </p>
-              </div>
-              <div v-else class="coinbase">No Inputs (Newly Generated Coins)</div>
-            </td>
-            <td>
-              <img src="@/assets/arrow_right_green.png"/>
-            </td>
-            <td>
-              <p v-for="to in transaction.toAccount">
-                <router-link :to="`/address/${to.account_id}`">
-                  {{to.account_id}}
-                </router-link>
-              </p>
-            </td>
-            <td>
-              <p v-for="to in transaction.to">{{to.amount}}</p>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="3"></td>
-            <td>
-              <el-button type="success">{{transaction.totalTo}}</el-button>
-            </td>
-          </tr>
-          </tbody>
+          <Transaction v-for="transaction in block.transactions" :transaction="transaction"/>
         </table>
       </div>
     </div>
@@ -149,9 +112,13 @@
 </template>
 
 <script>
-  import {getBlockByHash} from '@/api'
+  import {getBlockByHash} from '@/api';
+  import Transaction from '@/components/Transaction';
 
   export default {
+    components: {
+      Transaction,
+    },
     data() {
       return {
         block: {}
@@ -164,9 +131,6 @@
             let totalFrom = 0;
             let totalTo = 0;
             (block.transactions || []).forEach((transaction) => {
-              transaction.fromAccount = [];
-              transaction.toAccount = [];
-
               transaction.totalTo = (transaction.to || []).reduce((prev, cur) => prev + cur.amount, 0);
               if (!transaction.from) {
                 block.coinbase = (transaction.to || []).reduce((prev, cur) => prev + cur.amount, 0)
@@ -174,30 +138,6 @@
                 totalFrom += (transaction.from || []).reduce((prev, cur) => prev + cur.amount, 0);
                 totalTo += transaction.totalTo;
               }
-
-              (transaction.from || []).forEach((f) => {
-                const fromAccount = transaction.fromAccount.find(fa => fa.account_id === f.account_id);
-                if (typeof fromAccount === 'undefined') {
-                  transaction.fromAccount.push({
-                    account_id: f.account_id,
-                    tickets: [f]
-                  });
-                } else {
-                  fromAccount.tickets.push(f);
-                }
-              });
-
-              (transaction.to || []).forEach((t) => {
-                const toAccount = transaction.toAccount.find(ta => ta.account_id === t.account_id);
-                if (typeof toAccount === 'undefined') {
-                  transaction.toAccount.push({
-                    account_id: t.account_id,
-                    tickets: [t]
-                  });
-                } else {
-                  toAccount.tickets.push(t);
-                }
-              });
             });
             block.output = block.coinbase + totalTo;
             block.gasFee = totalFrom - totalTo;
