@@ -126,6 +126,11 @@
     },
     methods: {
       loadBlock(hash) {
+        const loading = this.$loading({
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
         getBlockByHash({hash})
           .then((block = {}) => {
             let totalFrom = 0;
@@ -143,9 +148,10 @@
             block.gasFee = totalFrom - totalTo;
             block.time = block.time.replace('T', ' ').replace('Z', '');
             this.block = block
+            loading.close();
           })
           .catch(err => {
-            console.log(err)
+            loading.close();
           })
       }
     },

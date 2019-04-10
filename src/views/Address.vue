@@ -27,12 +27,8 @@
             <td>{{transactions.length}}</td>
           </tr>
           <tr>
-            <td>Total Received</td>
-            <td>{{totalReceive}}</td>
-          </tr>
-          <tr>
             <td>Final Balance</td>
-            <td>{{remain}}</td>
+            <td>{{final}}</td>
           </tr>
         </table>
       </div>
@@ -42,7 +38,7 @@
       <h1>Transactions</h1>
       <div class="transaction-item">
         <table>
-          <Transaction v-for="transaction in transactions" :transaction="transaction"/>
+          <Transaction v-for="transaction in transactions" :transaction="transaction" address/>
         </table>
       </div>
     </div>
@@ -60,43 +56,48 @@
     data() {
       return {
         transactions: [],
-        totalSpend: 0,
-        totalReceive: 0,
-        remain: 0,
+        final: 0,
         address: '',
+        page: 1,
+        size: 20,
+        total: 0,
       }
     },
     methods: {
-      loadAddressInfo(hash) {
+      loadAddressInfo(hash, page) {
         this.address = hash;
-        this.totalSpend = 0;
-        this.totalReceive = 0;
-        this.remain = 0;
-        getAddressInfo({hash})
-          .then((transactions) => {
-            transactions.forEach((transaction) => {
-              transaction.totalFrom = 0; // 当前账户该笔交易总花费
-              transaction.totalReceive = 0; // 当前账户该笔交易总收入
-              transaction.totalTo = 0; // 交易总账
+        this.final = 0;
+        const loading = this.$loading({
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
+        getAddressInfo({hash, page})
+          .then(({list, page, total, final}) => {
+            this.total = total;
+            this.page = page;
+            this.final = final;
+            list.forEach((transaction) => {
+              transaction.spend = 0; // 当前账户该笔交易总花费
+              transaction.receive = 0; // 当前账户该笔交易总收入
 
               (transaction.from || []).forEach((f) => {
                 if (f.account_id === this.$route.params.hash) {
-                  transaction.totalFrom += f.amount;
+                  transaction.spend += f.amount;
                 }
               });
 
               (transaction.to || []).forEach((t) => {
-                transaction.totalTo += t.amount;
                 if (t.account_id === this.$route.params.hash) {
-                  transaction.totalReceive += t.amount;
+                  transaction.receive += t.amount;
                 }
               });
-              if (transaction.totalReceive - transaction.totalFrom > 0) {
-                this.totalReceive += transaction.totalReceive - transaction.totalFrom;
-              }
-              this.remain += transaction.totalReceive - transaction.totalFrom;
             });
-            this.transactions = transactions
+            this.transactions = list;
+            loading.close();
+          })
+          .catch(() => {
+            loading.close();
           })
       }
     },

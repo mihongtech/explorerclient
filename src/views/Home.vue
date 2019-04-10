@@ -4,7 +4,7 @@
       <div class="block-head">
         <a href="javascript:;">BLOCKS</a>
       </div>
-      <div class="block-body" v-loading="loading">
+      <div class="block-body">
         <el-table :data="data" stripe style="width: 100%">
           <el-table-column align="center" prop="height" label="Height">
             <template slot-scope="scope">
@@ -41,20 +41,24 @@
         size: 10,
         data: [],
         total: 0,
-        loading: true
       }
     },
     methods: {
       loadBlockList(page) {
-        this.loading = true;
+        const loading = this.$loading({
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
         getBlockList({page, size: this.size})
           .then(res => {
             this.data = res.list || [];
             this.total = res.total;
-            this.loading = false;
+            this.page = res.page;
+            loading.close();
           })
           .catch(() => {
-            this.loading = false;
+            loading.close();
           })
       }
     },

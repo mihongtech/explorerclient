@@ -72,6 +72,11 @@
     },
     methods: {
       loadTransaction(hash) {
+        const loading = this.$loading({
+          text: 'Loading',
+          spinner: 'el-icon-loading',
+          background: 'rgba(0, 0, 0, 0.7)'
+        });
         getTransactionByHash({hash})
           .then((transaction = {}) => {
             transaction.totalFrom = (transaction.from || []).reduce((prev, cur) => prev + cur.amount, 0);
@@ -79,8 +84,10 @@
             this.transaction = transaction;
             this.block = transaction.block;
             this.block.time = this.block.time.replace('T', ' ').replace('Z', '');
+            loading.close();
           })
           .catch(err => {
+            loading.close();
           })
       },
       loadBestBlock() {

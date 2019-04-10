@@ -12,12 +12,13 @@
           <router-link :to="`/address/${from.account_id}`">
             {{from.account_id}}
           </router-link>
-          <el-popover placement="right" trigger="hover" title="Tickets">
-            <el-table :data="from.tickets" size="mini" border>
+          <el-popover placement="right" trigger="click" title="Tickets">
+            <el-table :data="from.tickets" size="mini"
+                      :height="Math.min(from.tickets.length + 1, 5) * 36">
               <el-table-column width="500" label="Transaction">
                 <template slot-scope="scope">
-                  <router-link :to="{path: `/transaction/${scope.row.spend_tx_id.String}`}">
-                    {{scope.row.spend_tx_id.String}}
+                  <router-link :to="{path: `/transaction/${scope.row.tx_id}`}">
+                    {{scope.row.tx_id}}
                   </router-link>
                 </template>
               </el-table-column>
@@ -47,7 +48,10 @@
   <tr>
     <td colspan="3"></td>
     <td>
-      <el-button type="success">{{fmtTransaction.totalTo}}</el-button>
+      <el-button
+        :type="address ? (fmtTransaction.receive - fmtTransaction.spend > 0 ? 'success' : 'danger') : 'success'">
+        {{address ? fmtTransaction.receive - fmtTransaction.spend : fmtTransaction.totalTo}}
+      </el-button>
     </td>
   </tr>
   </tbody>
@@ -57,6 +61,10 @@
   export default {
     props: {
       transaction: Object,
+      address: {
+        type: Boolean,
+        value: false
+      }
     },
     methods: {
       combineTickets(tickets) {
