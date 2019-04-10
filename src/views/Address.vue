@@ -24,7 +24,7 @@
           </tr>
           <tr>
             <td>No. Transactions</td>
-            <td>{{transactions.length}}</td>
+            <td>{{total}}</td>
           </tr>
           <tr>
             <td>Final Balance</td>
