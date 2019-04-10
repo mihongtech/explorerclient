@@ -9,3 +9,5 @@ export const getBlockByHash = data => http.post('/rpc/block/hash', data);
 export const getTransactionByHash = data => http.post('/rpc/transaction/hash', data);
 
 export const getAddressInfo = data => http.post('/rpc/address/hash', data);
+
+export const getByKeyword = data => http.post('/rpc/search/global', data);

@@ -3,6 +3,12 @@
     <el-container>
       <el-header height="80px">
         <a href="/" class="logo">LINKCHAIN</a>
+        <el-input
+          class="header-search"
+          v-model="keyword"
+          @keyup.enter.native="doSearch"
+          placeholder="Address, transaction hash, block height or hash"
+          prefix-icon="el-icon-search"/>
       </el-header>
       <el-main>
         <router-view/>
@@ -15,17 +21,55 @@
 </template>
 
 <script>
+  import {getByKeyword} from '@/api';
+
   export default {
-    name: 'app',
     data() {
       return {
-        num: 5
+        keyword: '',
+      }
+    },
+    methods: {
+      doSearch() {
+        const keyword = this.keyword.trim();
+        this.keyword = keyword;
+        if (!keyword) return;
+        getByKeyword({keyword})
+          .then((res) => {
+            const {path, param} = res;
+            if (path === 'null') {
+              this.$alert(
+                'Oops! We couldn\'t find what you are looking for. Please enter an address, transaction hash, block height or hash',
+                {
+                  confirmButtonText: 'OK',
+                  callback: action => {
+                  }
+                });
+            } else {
+              this.$router.push({path: `/${path}/${param}`});
+            }
+          })
+          .catch(() => {
+          })
       }
     },
     mounted() {
-      setTimeout(() => {
-        this.num = 100
-      }, 1000)
     }
   }
 </script>
+
+<style scoped>
+  .el-header {
+    justify-content: space-between;
+  }
+
+  .header-search {
+    width: 300px;
+  }
+
+  /deep/ .el-input__inner {
+    color: #fff;
+    border-radius: 30px;
+    background: transparent;
+  }
+</style>
