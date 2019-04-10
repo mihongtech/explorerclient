@@ -8,11 +8,25 @@
   <tr>
     <td>
       <div v-if="fmtTransaction.fromAccounts && fmtTransaction.fromAccounts.length">
-        <p v-for="from in fmtTransaction.fromAccounts">
+        <div class="ticket" v-for="from in fmtTransaction.fromAccounts">
           <router-link :to="`/address/${from.account_id}`">
             {{from.account_id}}
           </router-link>
-        </p>
+          <el-popover placement="right" trigger="hover" title="Tickets">
+            <el-table :data="from.tickets" size="mini" border>
+              <el-table-column width="500" label="Transaction">
+                <template slot-scope="scope">
+                  <router-link :to="{path: `/transaction/${scope.row.spend_tx_id.String}`}">
+                    {{scope.row.spend_tx_id.String}}
+                  </router-link>
+                </template>
+              </el-table-column>
+              <el-table-column width="100" align="center" property="index" label="Index"/>
+              <el-table-column width="200" align="center" property="amount" label="Amount"/>
+            </el-table>
+            <el-button type="success" size="mini" circle icon="el-icon-tickets" slot="reference"/>
+          </el-popover>
+        </div>
       </div>
       <div v-else class="coinbase">No Inputs (Newly Generated Coins)</div>
     </td>
@@ -20,11 +34,11 @@
       <img src="@/assets/arrow_right_green.png"/>
     </td>
     <td>
-      <p v-for="to in fmtTransaction.toAccounts">
+      <div class="ticket" v-for="to in fmtTransaction.toAccounts">
         <router-link :to="`/address/${to.account_id}`">
           {{to.account_id}}
         </router-link>
-      </p>
+      </div>
     </td>
     <td>
       <p v-for="to in fmtTransaction.toAccounts">{{to.amount}}</p>
@@ -41,7 +55,6 @@
 
 <script>
   export default {
-    name: "Transactions",
     props: {
       transaction: Object,
     },
