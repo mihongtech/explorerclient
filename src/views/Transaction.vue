@@ -12,7 +12,7 @@
       <tr>
         <td>
           <div v-if="transaction.from">
-            <p v-for="from in transaction.from">
+            <p v-for="from in transaction.fromAccount">
               <router-link :to="`/address/${from.account_id}`">
                 {{from.account_id}}
               </router-link>
@@ -24,7 +24,7 @@
           <img src="@/assets/arrow_right_green.png"/>
         </td>
         <td>
-          <p v-for="to in transaction.to">
+          <p v-for="to in transaction.toAccount">
             <router-link :to="`/address/${to.account_id}`">
               {{to.account_id}}
             </router-link>
@@ -37,7 +37,7 @@
       <tr>
         <td colspan="3"></td>
         <td>
-          <el-button type="success">{{transaction.toTotal}}</el-button>
+          <el-button type="success">{{transaction.totalTo}}</el-button>
         </td>
       </tr>
     </table>
@@ -67,22 +67,22 @@
           </tr>
         </table>
       </div>
-      <div class="info-cell info-money" v-if="transaction.from">
+      <div class="info-cell info-money" v-if="transaction.fromAccount.length">
         <table>
           <tr>
             <th colspan="2">Inputs and Outputs</th>
           </tr>
           <tr>
             <td>Total Input</td>
-            <td>{{transaction.fromTotal}}</td>
+            <td>{{transaction.totalFrom}}</td>
           </tr>
           <tr>
             <td>Total Output</td>
-            <td>{{transaction.toTotal}}</td>
+            <td>{{transaction.totalTo}}</td>
           </tr>
           <tr>
             <td>Fees</td>
-            <td>{{transaction.fromTotal - transaction.toTotal}}</td>
+            <td>{{transaction.totalFrom - transaction.totalTo}}</td>
           </tr>
         </table>
       </div>
@@ -106,8 +106,35 @@
       loadTransaction(hash) {
         getTransactionByHash({hash})
           .then((transaction = {}) => {
-            transaction.fromTotal = (transaction.from || []).reduce((prev, cur) => prev + cur.amount, 0);
-            transaction.toTotal = (transaction.to || []).reduce((prev, cur) => prev + cur.amount, 0);
+            transaction.totalFrom = (transaction.from || []).reduce((prev, cur) => prev + cur.amount, 0);
+            transaction.totalTo = (transaction.to || []).reduce((prev, cur) => prev + cur.amount, 0);
+            transaction.fromAccount = [];
+            transaction.toAccount = [];
+
+            (transaction.from || []).forEach((f) => {
+              const fromAccount = transaction.fromAccount.find(fa => fa.account_id === f.account_id);
+              if (typeof fromAccount === 'undefined') {
+                transaction.fromAccount.push({
+                  account_id: f.account_id,
+                  tickets: [f]
+                });
+              } else {
+                fromAccount.tickets.push(f);
+              }
+            });
+
+            (transaction.to || []).forEach((t) => {
+              const toAccount = transaction.toAccount.find(ta => ta.account_id === t.account_id);
+              if (typeof toAccount === 'undefined') {
+                transaction.toAccount.push({
+                  account_id: t.account_id,
+                  tickets: [t]
+                });
+              } else {
+                toAccount.tickets.push(t);
+              }
+            });
+
             this.transaction = transaction;
             this.block = transaction.block;
             this.block.time = this.block.time.replace('T', ' ').replace('Z', '');
