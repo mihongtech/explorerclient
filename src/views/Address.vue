@@ -40,6 +40,13 @@
         <table>
           <Transaction v-for="transaction in transactions" :transaction="transaction" address/>
         </table>
+        <el-pagination
+          background
+          :page-size="size"
+          :total="total"
+          :current-page="page"
+          @current-change="page => loadAddressInfo($route.params.hash, page)"
+          layout="prev, pager, next, total"/>
       </div>
     </div>
   </div>
@@ -59,7 +66,7 @@
         final: 0,
         address: '',
         page: 1,
-        size: 20,
+        size: 2,
         total: 0,
       }
     },
@@ -72,7 +79,7 @@
           spinner: 'el-icon-loading',
           background: 'rgba(0, 0, 0, 0.7)'
         });
-        getAddressInfo({hash, page})
+        getAddressInfo({hash, page, size: this.size})
           .then(({list, page, total, final}) => {
             this.total = total;
             this.page = page;
@@ -102,10 +109,10 @@
       }
     },
     mounted() {
-      this.loadAddressInfo(this.$route.params.hash);
+      this.loadAddressInfo(this.$route.params.hash, 1);
     },
     beforeRouteUpdate(to, from, next) {
-      this.loadAddressInfo(to.params.hash);
+      this.loadAddressInfo(to.params.hash, 1);
       next()
     }
   }
@@ -129,5 +136,10 @@
 
   .info-transaction {
     margin-left: 10px;
+  }
+
+  /deep/ .el-pagination {
+    margin: 20px 0 0;
+    text-align: right;
   }
 </style>
