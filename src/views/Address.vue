@@ -66,7 +66,7 @@
         final: 0,
         address: '',
         page: 1,
-        size: 2,
+        size: 20,
         total: 0,
       }
     },
